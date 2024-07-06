@@ -1,0 +1,136 @@
+[gd_scene load_steps=11 format=3 uid="uid://c6ap4bspnk1tm"]
+
+[sub_resource type="GDScript" id="GDScript_b43ga"]
+resource_name = "main_button"
+script/source = "extends Area2D
+
+@export var id = 1
+@export var sig = \"inv\"
+
+signal clicked
+
+func _ready():
+	$sprite.play(str(id) + \"_default\")
+	owner.connect(\"button_recheck\", recheck)
+
+func _on_area_entered(area):
+	if area.is_in_group(\"mouse_area\") and is_visible_in_tree():
+		owner.hovering.push_front(self)
+		$sprite.play(str(id) + \"_hovered\")
+
+func _on_area_exited(area):
+	owner.hovering.erase(self)
+	$sprite.play(str(id) + \"_default\")
+
+func recheck():
+	var areas = get_overlapping_areas()
+	if !is_visible_in_tree():
+		return
+	for area in areas:
+		if area.is_in_group(\"mouse_area\"):
+			owner.hovering.push_front(self)
+			$sprite.play(str(id) + \"_hovered\")
+
+func _input(event):
+	if Input.is_action_just_pressed(\"left_click\"):
+		if owner.hovering.has(self) and is_visible_in_tree():
+			emit_signal(\"clicked\")
+"
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_lihol"]
+load_path = "res://.godot/imported/ui.png-e88e5568d70ae2a701e1e4009a30b390.ctex"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yph3j"]
+atlas = SubResource("CompressedTexture2D_lihol")
+region = Rect2(0, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eb010"]
+atlas = SubResource("CompressedTexture2D_lihol")
+region = Rect2(24, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b2cjg"]
+atlas = SubResource("CompressedTexture2D_lihol")
+region = Rect2(0, 24, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rrqd0"]
+atlas = SubResource("CompressedTexture2D_lihol")
+region = Rect2(24, 24, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t4um0"]
+atlas = SubResource("CompressedTexture2D_lihol")
+region = Rect2(0, 48, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2jhlk"]
+atlas = SubResource("CompressedTexture2D_lihol")
+region = Rect2(24, 48, 24, 24)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_16bw8"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yph3j")
+}],
+"loop": true,
+"name": &"1_default",
+"speed": 0.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_eb010")
+}],
+"loop": true,
+"name": &"1_hovered",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b2cjg")
+}],
+"loop": true,
+"name": &"2_default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rrqd0")
+}],
+"loop": true,
+"name": &"2_hovered",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t4um0")
+}],
+"loop": true,
+"name": &"3_default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2jhlk")
+}],
+"loop": true,
+"name": &"3_hovered",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qnrc2"]
+size = Vector2(96, 96)
+
+[node name="button" type="Area2D"]
+script = SubResource("GDScript_b43ga")
+
+[node name="sprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(48, 48)
+scale = Vector2(4, 4)
+sprite_frames = SubResource("SpriteFrames_16bw8")
+animation = &"1_default"
+
+[node name="hitbox" type="CollisionShape2D" parent="."]
+visible = false
+position = Vector2(48, 48)
+shape = SubResource("RectangleShape2D_qnrc2")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="area_exited" from="." to="." method="_on_area_exited"]

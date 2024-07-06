@@ -1,0 +1,45 @@
+[gd_scene load_steps=5 format=3 uid="uid://bptt1rb8pq37"]
+
+[sub_resource type="GDScript" id="GDScript_2wkkh"]
+resource_name = "main"
+script/source = "extends Node2D
+"
+
+[sub_resource type="GDScript" id="GDScript_iwxxx"]
+resource_name = "cam"
+script/source = "extends Camera2D	
+
+func _input(event):
+	if event is InputEventMouseMotion:
+		if event.button_mask == MOUSE_BUTTON_MASK_LEFT:
+			position -= event.relative / zoom
+	
+	if Input.is_action_pressed(\"scroll_up\"):
+		zoom *= 1.1
+	elif Input.is_action_pressed(\"scroll_down\"):
+		zoom /= 1.1
+"
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5kaok"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_73c8a"]
+bg_color = Color(1, 1, 1, 1)
+
+[node name="main" type="Node2D"]
+script = SubResource("GDScript_2wkkh")
+
+[node name="cam" type="Camera2D" parent="."]
+position = Vector2(640, 360)
+script = SubResource("GDScript_iwxxx")
+
+[node name="plot" type="Panel" parent="."]
+offset_left = 384.0
+offset_top = 104.0
+offset_right = 896.0
+offset_bottom = 616.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_5kaok")
+
+[node name="unit" type="Panel" parent="plot"]
+offset_right = 64.0
+offset_bottom = 64.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_73c8a")

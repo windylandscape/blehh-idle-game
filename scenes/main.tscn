@@ -1,0 +1,150 @@
+[gd_scene load_steps=10 format=3 uid="uid://bptt1rb8pq37"]
+
+[ext_resource type="FontFile" uid="uid://dibt37b2lnw2a" path="res://,fonts/alphbeta.ttf" id="1_a3rq1"]
+[ext_resource type="PackedScene" uid="uid://c6ap4bspnk1tm" path="res://scenes/main_button.tscn" id="2_ghpoo"]
+[ext_resource type="PackedScene" uid="uid://djl05f0wf8ej0" path="res://scenes/inv.tscn" id="3_58v3c"]
+[ext_resource type="StyleBox" uid="uid://bfaq443mesuep" path="res://resources/clear_black_panel.tres" id="3_jn4rm"]
+
+[sub_resource type="GDScript" id="GDScript_2wkkh"]
+resource_name = "main"
+script/source = "extends Node2D
+
+@onready var buttons_group = get_node(\"ui/buttons\")
+@onready var buttons = buttons_group.get_children()
+@onready var inv = get_node(\"ui/inv\")
+
+var hovering = []
+
+signal button_recheck
+
+func _ready():
+	buttons[0].connect(\"clicked\", inv_opened)
+	inv.get_node(\"back\").connect(\"clicked\", inv_closed)
+
+func prepare_recheck():
+	hovering = []
+	emit_signal(\"button_recheck\")
+
+func inv_opened():
+	prepare_recheck()
+	inv.show()
+	buttons_group.hide()
+
+func inv_closed():
+	prepare_recheck()
+	inv.hide()
+	buttons_group.show()
+
+func _process(delta):
+	print(hovering)
+"
+
+[sub_resource type="GDScript" id="GDScript_iwxxx"]
+resource_name = "cam"
+script/source = "extends Camera2D	
+
+func _unhandled_input(event):
+	if event is InputEventMouseMotion:
+		if event.button_mask == MOUSE_BUTTON_MASK_LEFT and owner.hovering.is_empty():
+			position -= event.relative / zoom
+
+func _input(event):
+	if Input.is_action_pressed(\"scroll_up\"):
+		zoom *= 1.1
+	elif Input.is_action_pressed(\"scroll_down\"):
+		zoom /= 1.1
+"
+
+[sub_resource type="GDScript" id="GDScript_y5r3l"]
+resource_name = "plot"
+script/source = "extends Node2D
+
+@onready var unit_scene = preload(\"res://scenes/unit.tscn\")
+
+func _ready():
+	for i in 8:
+		for j in 8:
+			var new = unit_scene.instantiate().init(i * 64, j * 64)
+			add_child(new)
+"
+
+[sub_resource type="GDScript" id="GDScript_aywme"]
+resource_name = "mouse"
+script/source = "extends Area2D
+
+func _physics_process(delta):
+	position = get_global_mouse_position()
+"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_w8865"]
+size = Vector2(1, 1)
+
+[node name="main" type="Node2D"]
+script = SubResource("GDScript_2wkkh")
+
+[node name="cam" type="Camera2D" parent="."]
+position = Vector2(640, 360)
+script = SubResource("GDScript_iwxxx")
+
+[node name="plot" type="Node2D" parent="."]
+position = Vector2(384, 104)
+script = SubResource("GDScript_y5r3l")
+
+[node name="ui" type="CanvasLayer" parent="."]
+
+[node name="money_label" type="Label" parent="ui"]
+offset_left = 32.0
+offset_top = 32.0
+offset_right = 162.0
+offset_bottom = 78.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("1_a3rq1")
+theme_override_font_sizes/font_size = 50
+text = "$1.25k"
+
+[node name="prestige_label" type="Label" parent="ui"]
+offset_left = 32.0
+offset_top = 82.0
+offset_right = 224.0
+offset_bottom = 128.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("1_a3rq1")
+theme_override_font_sizes/font_size = 40
+text = "Prestige 0"
+
+[node name="buttons" type="Node2D" parent="ui"]
+
+[node name="inv" parent="ui/buttons" instance=ExtResource("2_ghpoo")]
+position = Vector2(32, 200)
+
+[node name="shop" parent="ui/buttons" instance=ExtResource("2_ghpoo")]
+position = Vector2(32, 312)
+id = 2
+sig = "shop"
+
+[node name="pres" parent="ui/buttons" instance=ExtResource("2_ghpoo")]
+position = Vector2(32, 424)
+id = 3
+sig = "pres"
+
+[node name="inv" parent="ui" instance=ExtResource("3_58v3c")]
+visible = false
+offset_left = 16.0
+offset_top = 152.0
+offset_right = 352.0
+offset_bottom = 648.0
+
+[node name="mouse_area" type="Area2D" parent="ui" groups=["mouse_area"]]
+script = SubResource("GDScript_aywme")
+
+[node name="hitbox" type="CollisionShape2D" parent="ui/mouse_area"]
+position = Vector2(-0.5, -0.5)
+shape = SubResource("RectangleShape2D_w8865")
+
+[node name="info_hover" type="Panel" parent="ui/mouse_area"]
+visible = false
+offset_right = 256.0
+offset_bottom = 320.0
+theme_override_styles/panel = ExtResource("3_jn4rm")

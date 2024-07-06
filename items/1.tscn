@@ -1,0 +1,106 @@
+[gd_scene load_steps=11 format=3 uid="uid://dsbynobwmpim"]
+
+[ext_resource type="Texture2D" uid="uid://daks4pfi7yeeu" path="res://,sprites/basic conveyor.png" id="1_st5si"]
+
+[sub_resource type="GDScript" id="GDScript_fk2o8"]
+resource_name = "basic conveyor"
+script/source = "extends Area2D
+
+const stats = {
+	\"name\": \"Basic Conveyor\",
+	\"desc\": \"A low end conveyor, fit for moving ores around your base.\",
+	
+	\"speed\": 3,
+	\"capacity\": 5,
+	
+	\"multi\": 1.0,
+	\"tags\": [
+		
+	]
+}
+"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ewngn"]
+atlas = ExtResource("1_st5si")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rtvk1"]
+atlas = ExtResource("1_st5si")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p4odh"]
+atlas = ExtResource("1_st5si")
+region = Rect2(0, 16, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_go7qa"]
+atlas = ExtResource("1_st5si")
+region = Rect2(16, 16, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_6ccw0"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ewngn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rtvk1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p4odh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_go7qa")
+}],
+"loop": true,
+"name": &"default",
+"speed": 8.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eh357"]
+atlas = ExtResource("1_st5si")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_7x2ot"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_eh357")
+}],
+"loop": true,
+"name": &"default",
+"speed": 0.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ge0e7"]
+size = Vector2(64, 64)
+
+[node name="1" type="Area2D"]
+script = SubResource("GDScript_fk2o8")
+
+[node name="sprite" type="AnimatedSprite2D" parent="."]
+scale = Vector2(4, 4)
+sprite_frames = SubResource("SpriteFrames_6ccw0")
+frame_progress = 0.589086
+
+[node name="ColorRect2" type="ColorRect" parent="."]
+offset_left = -36.0
+offset_top = -8.0
+offset_right = -28.0
+offset_bottom = 8.0
+color = Color(0, 1, 0.233333, 1)
+
+[node name="ColorRect4" type="ColorRect" parent="."]
+offset_left = 28.0
+offset_top = -8.0
+offset_right = 36.0
+offset_bottom = 8.0
+color = Color(1, 0, 0, 1)
+
+[node name="preview" type="AnimatedSprite2D" parent="."]
+visible = false
+scale = Vector2(4, 4)
+sprite_frames = SubResource("SpriteFrames_7x2ot")
+
+[node name="hitbox" type="CollisionShape2D" parent="."]
+visible = false
+shape = SubResource("RectangleShape2D_ge0e7")

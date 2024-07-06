@@ -1,0 +1,111 @@
+[gd_scene load_steps=10 format=3 uid="uid://djl05f0wf8ej0"]
+
+[ext_resource type="Texture2D" uid="uid://kn85to2fx4jf" path="res://,sprites/ui.png" id="1_311gl"]
+[ext_resource type="StyleBox" uid="uid://bfaq443mesuep" path="res://resources/clear_black_panel.tres" id="1_wxw4q"]
+[ext_resource type="FontFile" uid="uid://dibt37b2lnw2a" path="res://,fonts/alphbeta.ttf" id="3_rjhn1"]
+
+[sub_resource type="GDScript" id="GDScript_don0i"]
+resource_name = "inv"
+script/source = "extends Panel
+
+@onready var inv_slot_scene = preload(\"res://scenes/inv_slot.tscn\")
+
+func _ready():
+	for i in 4:
+		for j in 5:
+			var new = inv_slot_scene.instantiate().init(i * 80, j * 80)
+			$inv_slots.add_child(new)
+"
+
+[sub_resource type="GDScript" id="GDScript_ti15b"]
+resource_name = "inv_back_button"
+script/source = "extends Area2D
+
+signal clicked
+
+func _ready():
+	$sprite.play(\"default\")
+	owner = owner.owner
+
+func _on_area_entered(area):
+	if area.is_in_group(\"mouse_area\") and is_visible_in_tree():
+		owner.hovering.push_front(self)
+		$sprite.play(\"hovered\")
+
+func _on_area_exited(area):
+	owner.hovering.erase(self)
+	$sprite.play(\"default\")
+
+func _input(event):
+	if Input.is_action_just_pressed(\"left_click\"):
+		if owner.hovering.has(self) and is_visible_in_tree():
+			emit_signal(\"clicked\")
+"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cy318"]
+atlas = ExtResource("1_311gl")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l3b0k"]
+atlas = ExtResource("1_311gl")
+region = Rect2(48, 16, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_wng1m"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cy318")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l3b0k")
+}],
+"loop": true,
+"name": &"hovered",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_v06of"]
+size = Vector2(64, 64)
+
+[node name="inv" type="Panel"]
+offset_right = 336.0
+offset_bottom = 496.0
+theme_override_styles/panel = ExtResource("1_wxw4q")
+script = SubResource("GDScript_don0i")
+
+[node name="inv_label" type="Label" parent="."]
+offset_left = 64.0
+offset_top = 16.0
+offset_right = 336.0
+offset_bottom = 80.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("3_rjhn1")
+theme_override_font_sizes/font_size = 40
+text = "Inventory"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="back" type="Area2D" parent="."]
+position = Vector2(48, 48)
+script = SubResource("GDScript_ti15b")
+
+[node name="sprite" type="AnimatedSprite2D" parent="back"]
+scale = Vector2(4, 4)
+sprite_frames = SubResource("SpriteFrames_wng1m")
+
+[node name="hitbox" type="CollisionShape2D" parent="back"]
+visible = false
+position = Vector2(0, -1)
+shape = SubResource("RectangleShape2D_v06of")
+
+[node name="inv_slots" type="Node2D" parent="."]
+position = Vector2(16, 96)
+
+[connection signal="area_entered" from="back" to="back" method="_on_area_entered"]
+[connection signal="area_exited" from="back" to="back" method="_on_area_exited"]
